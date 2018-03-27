@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var User = require('../models/user');
 
 /* GET signup page. */
 router.get('/', function(req, res, next) {

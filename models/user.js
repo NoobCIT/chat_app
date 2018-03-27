@@ -13,7 +13,7 @@ var UserSchema = new mongoose.Schema({
   },
   lastname: {
     type: String,
-    required: true
+    required: true,
     trim: true
   },
   password: {
