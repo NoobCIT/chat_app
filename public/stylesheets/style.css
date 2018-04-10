@@ -219,3 +219,15 @@ input {
   border: 4px solid #ff4757;
   border-radius: 12px;
 }
+
+/* Flash Messages */
+.flash-container {
+  height: 60px;
+  text-align: center;
+  background-color: #ffeaa7;
+  color: #d63031;
+  line-height: 60px;
+  vertical-align: middle;
+  margin: 24px;
+  border: 4px solid #ff6348;
+}

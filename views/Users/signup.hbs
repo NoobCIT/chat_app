@@ -1,0 +1,49 @@
+<div class="signup-container">
+  <div class="signup">
+    <div class="header-container">
+      <div class="header">
+        <a href='/'><span id="logo">TeamChat</span></a>
+      </div>
+    </div>
+    <div class="form-container">
+      <form action="/save" method="post">
+        <div class="form-group">
+          <label>First Name</label><br />
+          <input type="text" name="firstname" id="firstname" placeholder="Required" size="36">
+        </div>
+
+        <div class="form-group">
+          <label>Last Name</label><br />
+          <input type="text" name="lastname" id="lastname" placeholder="Required" size="36">
+        </div>
+
+        <div class="form-group">
+          <label>Email</label><br />
+          <input type="email" name="email" id="email" placeholder="Required" size="36">
+        </div>
+
+        <div class="form-group">
+          <label>Password</label><br />
+          <input type="password" name="password" id="password" placeholder="Required" size="36">
+        </div>
+
+        <div class="form-group">
+          <label>Password Confirmation</label><br />
+          <input type="password" name="passwordConfirmation" id="passwordConfirmation" placeholder="Confirm Your Password" size="36">
+        </div>
+
+        <div id="errorMessage"></div>
+
+        {{#if messages.signup}}
+      <div class="flash-container">
+          {{messages.signup}}
+      </div>
+        {{/if}}
+
+        <div class="form-group">
+          <button type="submit" id="signup-button" class="signup-button">Sign Up!</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -6,23 +6,19 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var home = require('./routes/home');
-var index = require('./routes/index');
-var users = require('./routes/users');
-var signup = require('./routes/signup');
-var login = require('./routes/login');
-
+var flash = require('connect-flash');
+require('./models/User');
+var session = require('express-session');
 var app = express();
 
-//file server
 
 
 // view engine setup using handle bars
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
+
 var dbConnectionString = process.env.MONGODB_URI || 'mongodb://localhost';
-mongoose.connect(dbConnectionString);
+mongoose.connect(dbConnectionString + '/chat_app');
 if (app.get('env') == 'development') {
   var browserSync = require('browser-sync');
   var config = {
@@ -36,18 +32,23 @@ if (app.get('env') == 'development') {
   app.use(require('connect-browser-sync')(bs));
 }
 
+//Use sessions
+app.use(session({
+  secret: 'something',
+  resave: true,
+}));
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', home);
-app.use('/users', users);
-app.use('/signup', signup);
-app.use('/login', login);
+var routes = require('./routes/router');
+app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,6 +56,8 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
+
+
 
 // error handler
 app.use(function(err, req, res, next) {
