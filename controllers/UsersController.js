@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var User = require('../models/User');
+var User = require('../models/user');
 var usersController = {};
 
 // Sign up page
