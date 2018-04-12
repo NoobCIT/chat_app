@@ -231,3 +231,8 @@ input {
   margin: 24px;
   border: 4px solid #ff6348;
 }
+
+/* Styles for chat */
+#messages {
+  height: 300px;
+}

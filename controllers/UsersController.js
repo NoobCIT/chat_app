@@ -39,9 +39,6 @@ usersController.save = function(req, res, next) {
       req.flash('signup', 'Fill all fields & check matching passwords!');
       res.locals.messages = req.flash();
       res.render('../views/Users/signup');
-      //var err = new Error('All fields are required.');
-      //err.status = 400;
-      //return next(err);
     }
 }
 
@@ -71,9 +68,6 @@ usersController.authenticate = function(req, res, next) {
         req.flash('login', 'Password or email is incorrect!');
         res.locals.messages = req.flash();
         res.render('../views/Users/login');
-        //var err = new Error("Password or email is incorrect.");
-        //err.status = 401;
-        //return next(err);
       } else {
         req.session.userId = user._id;
         return res.redirect('/profile');
@@ -83,9 +77,6 @@ usersController.authenticate = function(req, res, next) {
     req.flash('emptyLogin', 'All fields are required!');
     res.locals.messages = req.flash();
     res.render('../views/Users/login');
-    //var err = new Error("All fields are required.");
-    //err.status = 400;
-    //return next(err);
   }
 }
 

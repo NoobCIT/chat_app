@@ -9,16 +9,76 @@ var bodyParser = require('body-parser');
 var flash = require('connect-flash');
 require('./models/User');
 var session = require('express-session');
+
 var app = express();
+var server = app.listen(4000);
+var client = require("socket.io")(server);
 
-
+// emit = server send to client
+// broadcase = send to everyone except for the socket that started it.
 
 // view engine setup using handle bars
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
 
 var dbConnectionString = process.env.MONGODB_URI || 'mongodb://localhost';
-mongoose.connect(dbConnectionString + '/chat_app');
+mongoose.connect(dbConnectionString + '/chat_app', function(err, db) {
+  if (err) {
+    throw err;
+  } else {
+    console.log("The Mongo Has Been Connected!");
+
+    //Make connection to Socket.io
+    client.on("connection", function(socket) {
+      let chat = db.collection("chats");
+
+      //Create function to send status from client to server
+      sendStatus = function(status) {
+        socket.emit("status", status) //name status to status
+      }
+
+      // Get chats from the mongodb collection
+      chat.find().limit(100).sort({ _id:1 }).toArray(function(err, res) {
+          if (err) {
+            throw err;
+          }
+
+          // Emit the messages as "output"
+          socket.emit("output", res);
+      });
+
+      // Handle input events
+      socket.on("input", function(data) {
+        let name  = data.name;
+        let message = data.message;
+
+        // Check for name and message
+        if (name == "" || message == "") {
+          // Send error status
+          sendStatus("Please enter a name and message");
+        } else {
+          // Insert message into database since its valid
+          chat.insert({ name: name, message: message }, function() {
+            client.emit("output", [data]); //emit output back to client
+
+            // Send status object
+            sendStatus({
+              message: "Message sent",
+              clear: true
+            });
+          });
+        }
+      });
+      socket.on("clear", function() {
+        // Remove all chats from collection
+        chat.remove({}, function() { //{} means select everything
+          // Emit cleared
+          socket.emit("cleared");
+        })
+      })
+    })
+  }
+});
 if (app.get('env') == 'development') {
   var browserSync = require('browser-sync');
   var config = {
@@ -37,6 +97,7 @@ app.use(session({
   secret: 'something',
   resave: true,
 }));
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
