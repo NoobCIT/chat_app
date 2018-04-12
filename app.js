@@ -21,7 +21,7 @@ var client = require("socket.io")(server);
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
 
-var dbConnectionString = process.env.MONGODB_URI || 'mongodb://localhost';
+var dbConnectionString = process.env.MONGOLAB_URI || 'mongodb://localhost';
 mongoose.connect(dbConnectionString + '/chat_app', function(err, db) {
   if (err) {
     throw err;
