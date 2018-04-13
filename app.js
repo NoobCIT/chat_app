@@ -98,7 +98,7 @@ app.use(session({
   secret: 'something',
   resave: true,
   store: new MongoStore({
-    mongooseConnection: dbConnectionString
+    mongooseConnection: mongoose.connection
   })
 }));
 
