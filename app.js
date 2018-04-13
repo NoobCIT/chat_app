@@ -16,12 +16,12 @@ var client = require("socket.io")(server);
 
 // emit = server send to client
 // broadcase = send to everyone except for the socket that started it.
-
+//mongodb://ds243059.mlab.com:43059/heroku_chat_app
 // view engine setup using handle bars
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
 
-var dbConnectionString = process.env.MONGOLAB_URI || 'mongodb://localhost';
+var dbConnectionString = 'mongodb://ds243059.mlab.com:43059/heroku_chat_app' || 'mongodb://localhost';
 mongoose.connect(dbConnectionString + '/chat_app', function(err, db) {
   if (err) {
     throw err;
