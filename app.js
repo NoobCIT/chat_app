@@ -22,7 +22,7 @@ var client = require("socket.io")(server);
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
 
-var dbConnectionString = process.env.MONGOLAB_URI;
+var dbConnectionString = (process.env.MONGOLAB_URI || 'mongodb://localhost/chat_app');
 mongoose.connect(dbConnectionString, function(err, db) {
   if (err) {
     throw err;
@@ -97,9 +97,8 @@ if (app.get('env') == 'development') {
 app.use(session({
   secret: 'something',
   resave: true,
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection
-  })
+  saveUninitialized: false, // don't create session until something stored
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
 
