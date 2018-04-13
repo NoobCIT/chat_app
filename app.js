@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var flash = require('connect-flash');
 require('./models/user');
 var session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 var app = express();
 var server = app.listen(process.env.PORT || 4000);
@@ -96,7 +97,9 @@ if (app.get('env') == 'development') {
 app.use(session({
   secret: 'something',
   resave: true,
-  saveUninitialized: true
+  store: new MongoStore({
+    mongooseConnection: dbConnectionString
+  })
 }));
 
 
