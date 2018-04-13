@@ -11,7 +11,7 @@ require('./models/user');
 var session = require('express-session');
 
 var app = express();
-var server = app.listen(4000);
+var server = app.listen(process.env.PORT || 4000);
 var client = require("socket.io")(server);
 
 // emit = server send to client
