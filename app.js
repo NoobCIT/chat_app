@@ -96,7 +96,7 @@ if (app.get('env') == 'development') {
 app.use(session({
   secret: 'something',
   resave: true,
-  saveUninitialized: false
+  saveUninitialized: true
 }));
 
 
