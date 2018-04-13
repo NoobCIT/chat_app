@@ -12,9 +12,9 @@ var session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 var app = express();
-var server = app.listen(process.env.PORT || 4000);
+var server = app.listen(4000);
 var client = require("socket.io")(server);
-
+//process.env.PORT
 // emit = server send to client
 // broadcase = send to everyone except for the socket that started it.
 //mongodb://ds243059.mlab.com:43059/heroku_chat_app
