@@ -13,15 +13,15 @@ const MongoStore = require('connect-mongo')(session);
 
 var app = express();
 var server = app.listen(4000);
-var client = require("socket.io")(server);
-//process.env.PORT
-// emit = server send to client
+var client = require("socket.io")(server); //run socketio on port 4000
+
+// emit = server send to client or viceversa
 // broadcase = send to everyone except for the socket that started it.
 //mongodb://ds243059.mlab.com:43059/heroku_chat_app
 // view engine setup using handle bars
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
-
+//chat_app is db name
 var dbConnectionString = (process.env.MONGOLAB_URI || 'mongodb://localhost/chat_app');
 mongoose.connect(dbConnectionString, function(err, db) {
   if (err) {
@@ -31,9 +31,10 @@ mongoose.connect(dbConnectionString, function(err, db) {
 
     //Make connection to Socket.io
     client.on("connection", function(socket) {
-      let chat = db.collection("chats");
+      let chat = db.collection("chats"); //Make a collection/table called chats
+      let registeredUsers = db.collection("users");
 
-      //Create function to send status from client to server
+      //Create function to send status from server to client
       sendStatus = function(status) {
         socket.emit("status", status) //name status to status
       }
@@ -44,11 +45,26 @@ mongoose.connect(dbConnectionString, function(err, db) {
             throw err;
           }
 
-          // Emit the messages as "output"
+          // Emit the messages(res) as "output" from server to client (html file)
           socket.emit("output", res);
       });
 
-      // Handle input events
+      //Get list of registered users from server
+      registeredUsers.find().sort({ firstname: 1 }).toArray(function(err, res) {
+        if (err) {
+          throw err;
+        }
+
+        socket.emit("listOfUsers", res);
+      });
+
+      socket.on("singleChatLog", function(data) {
+        registeredUsers.find(data.userid)
+        data.userid
+      })
+
+      // Handle input events from the client sending messages
+      //socket.on = you are catching what the client is sending to you
       socket.on("input", function(data) {
         let name  = data.name;
         let message = data.message;
@@ -70,11 +86,12 @@ mongoose.connect(dbConnectionString, function(err, db) {
           });
         }
       });
+      //Feature to clear chat messages (from client we are gonna initiate a 'clear')
       socket.on("clear", function() {
         // Remove all chats from collection
         chat.remove({}, function() { //{} means select everything
           // Emit cleared
-          socket.emit("cleared");
+          socket.emit("cleared"); //send cleared to client from server
         })
       })
     })

@@ -20,7 +20,12 @@ var UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
-  }
+  },
+  msglogs: [{
+    person: String,
+    logs: String,
+    _id: false
+  }]
 });
 
 // Authenticate login info with that stored in database

@@ -5,7 +5,11 @@
       <a href='/'><span id="profile-logo">TeamChat</span></a>
     </div>
     <div class="user-container">
-      {{user.firstname}} {{user.lastname}} <a href="/logout">LogOut</a>
+      <div>{{user.firstname}} {{user.lastname}} <a href="/logout">LogOut</a></div>
+      <ul id="users">
+        <li class="users-li active">Chat Bot</li>
+      </ul>
+      <hr>
     </div>
   </div>
 

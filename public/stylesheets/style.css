@@ -319,3 +319,12 @@ textarea:focus {
 #username {
   border: 4px solid #ff7f50
 }
+
+.users-li {
+  margin-bottom: 0px;
+}
+
+.active {
+  background-color: #70a1ff;
+  opacity: 0.9;
+}
