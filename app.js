@@ -12,8 +12,10 @@ var session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 var app = express();
-var server = app.listen(process.env.PORT || 4000);
-var io = require("socket.io")(server); //run socketio on port 4000
+//var server = app.listen(process.env.PORT || 4000);
+//var io = require("socket.io")(server); //run socketio on port 4000
+var sockIO = require('socket.io')();
+app.sockIO = sockIO;
 
 // emit = server send to client or viceversa
 // broadcase = send to everyone except for the socket that started it.
@@ -30,7 +32,7 @@ mongoose.connect(dbConnectionString, function(err, db) {
     console.log("The Mongo Has Been Connected!");
 
     //Make connection to Socket.io
-    io.on("connection", function(socket) {
+    sockIO.on("connection", function(socket) {
       let chat = db.collection("chats"); //Make a collection/table called chats
       let registeredUsers = db.collection("users");
 
@@ -91,7 +93,7 @@ mongoose.connect(dbConnectionString, function(err, db) {
           sendStatus("Please enter a message");
         } else {
           chat.insert({ name: name, message: message, relationship: [sender, receiver] }, function() {
-            io.emit("output", [data]); //emit output back to client
+            sockIO.emit("output", [data]); //emit output back to client
 
              //Send status object
             sendStatus({
