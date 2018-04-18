@@ -24,8 +24,8 @@
   }
 
     // Connect to socket.io
-    var socket = io.connect("http://localhost:4000");
-
+    //var socket = io.connect(process.env.PORT || "http://localhost:4000");
+    var socket = io.connect("/");
     // Check for connection
     if (socket !== undefined) {
       console.log("We are connected to socket...");
