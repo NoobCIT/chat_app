@@ -7,7 +7,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var flash = require('connect-flash');
-require('./models/user');
+var User = require('./models/user');
 var session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
@@ -39,16 +39,6 @@ mongoose.connect(dbConnectionString, function(err, db) {
         socket.emit("status", status) //name status to status
       }
 
-      // Get chats from the mongodb collection
-      chat.find().limit(100).sort({ _id:1 }).toArray(function(err, res) {
-          if (err) {
-            throw err;
-          }
-
-          // Emit the messages(res) as "output" from server to client (html file)
-          socket.emit("output", res);
-      });
-
       //Get list of registered users from server
       registeredUsers.find().sort({ firstname: 1 }).toArray(function(err, res) {
         if (err) {
@@ -58,9 +48,33 @@ mongoose.connect(dbConnectionString, function(err, db) {
         socket.emit("listOfUsers", res);
       });
 
-      socket.on("singleChatLog", function(data) {
-        registeredUsers.find(data.userid)
-        data.userid
+      // Get chats from the mongodb collection
+      //chat.find().limit(100).sort({ _id:1 }).toArray(function(err, res) {
+      //    if (err) {
+      //      throw err;
+      //    }
+
+          // Emit the messages(res) as "output" from server to client (html file)
+      //    socket.emit("output", res);
+      //});
+
+        socket.on("singleChatLog", function(data) {
+        let sender = data.sender;
+        let receiver = data.receiver;
+
+        if (chat.find({ relationship: { $all: [sender, receiver] } }).toArray().length == 0) {
+          chat.insert({ name: "", message: "", relationship: [sender, receiver] });
+        }
+
+
+        // Get chats from the mongodb collection
+        chat.find({ relationship: { $all: [sender, receiver] } }).limit(100).sort({ _id:1 }).toArray(function(err, res) {
+            if (err) {
+              throw err;
+            }
+            // Emit the messages(res) as "output" from server to client (html file)
+            socket.emit("output", res);
+        });
       })
 
       // Handle input events from the client sending messages
@@ -68,17 +82,18 @@ mongoose.connect(dbConnectionString, function(err, db) {
       socket.on("input", function(data) {
         let name  = data.name;
         let message = data.message;
+        let sender = data.sender;
+        let receiver = data.receiver;
 
         // Check for name and message
-        if (name == "" || message == "") {
+        if (message == "") {
           // Send error status
-          sendStatus("Please enter a name and message");
+          sendStatus("Please enter a message");
         } else {
-          // Insert message into database since its valid
-          chat.insert({ name: name, message: message }, function() {
+          chat.insert({ name: name, message: message, relationship: [sender, receiver] }, function() {
             client.emit("output", [data]); //emit output back to client
 
-            // Send status object
+             //Send status object
             sendStatus({
               message: "Message sent",
               clear: true

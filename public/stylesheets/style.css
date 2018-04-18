@@ -328,3 +328,7 @@ textarea:focus {
   background-color: #70a1ff;
   opacity: 0.9;
 }
+
+#chatbot {
+  display: none;
+}

@@ -8,6 +8,7 @@
   var clearBtn = document.getElementById("clear");
   var users = document.getElementById("users");
   var userLi = users.getElementsByClassName("users-li");
+  var loggedInUser = document.getElementById("loggedInUser");
 
   // Set default status
   var statusDefault = status.textContent;
@@ -30,10 +31,11 @@
       console.log("We are connected to socket...");
       // Handle Output - server emitted output, use socket.on to listen for it and catch 'output'
       socket.on("output", function(data) {
-        //console.log(data);
+        //messages.innerHTML = "";
         if (data.length) {
           for (let x = 0; x < data.length; x++) {
             //Build out message div
+            if (data[x].name == "" && data[x].message == "") continue;
             var message = document.createElement("div");
             message.setAttribute("class", "chat-message");
             message.textContent = data[x].name + ": " + data[x].message;
@@ -45,8 +47,12 @@
 
       //List registered users
       socket.on("listOfUsers", function(data) {
+        let nameArray = loggedInUser.textContent.split(" ");
+        let userFirst = nameArray[0];
+        let userLast = nameArray[1];
         if (data.length) {
           for (let x = 0; x < data.length; x++) {
+            if (data[x].firstname == userFirst && data[x].lastname == userLast) continue;
             let someUser = document.createElement("li");
             someUser.setAttribute("class", "users-li");
             someUser.setAttribute("data-userid", `${data[x]._id}` )
@@ -60,7 +66,11 @@
             let current = document.getElementsByClassName("active");
             current[0].className = current[0].className.replace("active", "");
             this.className += " active";
-            socket.emit("singleChatLog", { id: this.getAttribute("data-userid") })
+            messages.innerHTML = ""; //resets chat log first
+            socket.emit("singleChatLog", {
+              sender: loggedInUser.getAttribute("data-userid"),
+              receiver: current[0].getAttribute("data-userid")
+            })
           });
         }
       });
@@ -80,9 +90,15 @@
       textarea.addEventListener("keydown", function(event) {
         if (event.which === 13 && event.shiftKey == false) {
           // Emit to server input - send this message to server
+          let firstname = loggedInUser.textContent.split(" ")[0];
+          let lastname = loggedInUser.textContent.split(" ")[1];
+          let current = document.getElementsByClassName("active");
+
           socket.emit("input", {
-            name: username.value,
-            message: textarea.value
+            name: username.value.length == 0 ? firstname + " " + lastname : username.value,
+            message: textarea.value,
+            sender: loggedInUser.getAttribute("data-userid"),
+            receiver: current[0].getAttribute("data-userid")
           });
           event.preventDefault();
         }

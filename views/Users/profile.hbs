@@ -5,11 +5,11 @@
       <a href='/'><span id="profile-logo">TeamChat</span></a>
     </div>
     <div class="user-container">
-      <div>{{user.firstname}} {{user.lastname}} <a href="/logout">LogOut</a></div>
-      <ul id="users">
-        <li class="users-li active">Chat Bot</li>
-      </ul>
+      <div id="loggedInUser" data-userid="{{user._id}}">{{user.firstname}} {{user.lastname}} <a href="/logout">LogOut</a></div>
       <hr>
+      <ul id="users">
+        <li class="users-li active" id="chatbot">Chat Bot</li>
+      </ul>
     </div>
   </div>
 
