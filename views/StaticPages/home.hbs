@@ -3,8 +3,13 @@
     <li><a href='/'><span id="logo">TeamChat</span></a></li>
     <li><a href=#problem>Problem</a></li>
     <li><a href=#solution>Solution</a></li>
-    <li><a href="/login">Log In</a></li>
-    <li><a href="/signup">Sign Up</a></li>
+    {{#if session}}
+      <li><a href="/profile">Profile</a></li>
+      <li><a href="/logout">Logout</a></li>
+    {{else}}
+      <li><a href="/login">Log In</a></li>
+      <li><a href="/signup">Sign Up</a></li>
+    {{/if}}
   </ul>
 </div>
 <div class="home-container section">
