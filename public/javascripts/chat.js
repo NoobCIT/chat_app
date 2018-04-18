@@ -25,7 +25,7 @@
 
     // Connect to socket.io
     //var socket = io.connect(process.env.PORT || "http://localhost:4000");
-    var socket = io.connect(); //defaults to the domain and port of current web page.
+    var socket = io.connect(":4000"); //defaults to the domain and port of current web page.
     // Check for connection
     if (socket !== undefined) {
       console.log("We are connected to socket...");
