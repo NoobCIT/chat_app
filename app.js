@@ -12,7 +12,7 @@ var session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 var app = express();
-var server = app.listen(process.env.PORT || 4000);
+var server = app.listen(process.env.PORT || 80);
 var client = require("socket.io")(server); //run socketio on port 4000
 
 // emit = server send to client or viceversa
