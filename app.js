@@ -12,14 +12,11 @@ var session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
 var app = express();
-//var server = app.listen(process.env.PORT || 4000);
-//var io = require("socket.io")(server); //run socketio on port 4000
 var sockIO = require('socket.io')();
 app.sockIO = sockIO;
 
 // emit = server send to client or viceversa
 // broadcase = send to everyone except for the socket that started it.
-//mongodb://ds243059.mlab.com:43059/heroku_chat_app
 // view engine setup using handle bars
 app.engine('hbs', exphbs({extname: '.hbs', defaultLayout: 'layout'}));
 app.set('view engine', 'hbs');
@@ -66,7 +63,7 @@ mongoose.connect(dbConnectionString, function(err, db) {
         let room = data.room;
 
         chat.insert({ name: name, message: msg, room: room });
-        
+
 
         // Get chatrooms from the mongodb collection
         chat.find().sort({ _id:1 }).toArray(function(err, res) {
@@ -77,15 +74,6 @@ mongoose.connect(dbConnectionString, function(err, db) {
           socket.emit("listOfChatRooms", res);
         })
       });
-      // Get chats from the mongodb collection
-      //chat.find().limit(100).sort({ _id:1 }).toArray(function(err, res) {
-      //    if (err) {
-      //      throw err;
-      //    }
-
-          // Emit the messages(res) as "output" from server to client (html file)
-      //    socket.emit("output", res);
-      //});
 
       //Get chatlog for the user you want to 1 on 1 talk to
       socket.on("singleChatLog", function(data) {
@@ -202,8 +190,6 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
-
 
 // error handler
 app.use(function(err, req, res, next) {
