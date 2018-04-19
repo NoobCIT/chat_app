@@ -6,9 +6,11 @@
   var textarea = document.getElementById("textarea");
   var username = document.getElementById("username");
   var clearBtn = document.getElementById("clear");
+  var chatRoomBtn = document.getElementById("chatroom");
   var users = document.getElementById("users");
   var userLi = users.getElementsByClassName("users-li");
   var loggedInUser = document.getElementById("loggedInUser");
+  var chatRooms = users.getElementsByClassName("chatroom");
 
   // Set default status
   var statusDefault = status.textContent;
@@ -61,6 +63,7 @@
           }
         }
 
+        //Click a user and grab their message logs
         for (let i = 0; i < userLi.length; i++) {
           userLi[i].addEventListener("click", function() {
             let current = document.getElementsByClassName("active");
@@ -70,6 +73,32 @@
             socket.emit("singleChatLog", {
               sender: loggedInUser.getAttribute("data-userid"),
               receiver: current[0].getAttribute("data-userid")
+            })
+          });
+        }
+      });
+
+      socket.on("listOfChatRooms", function(data) {
+        if (data.length) {
+          for (let x = 0; x < data.length; x++) {
+            if (data[x].message == "" && data[x].name == "") {
+              let roomTag = document.createElement("li");
+              roomTag.setAttribute("class", "chatroom");
+              roomTag.textContent = data[x].room;
+              users.appendChild(roomTag);
+            }
+          }
+        }
+
+        //Click a user and grab their message logs
+        for (let i = 0; i < chatRooms.length; i++) {
+          chatRooms[i].addEventListener("click", function() {
+            let current = document.getElementsByClassName("active");
+            current[0].className = current[0].className.replace("active", "");
+            this.className += " active";
+            messages.innerHTML = ""; //resets chat log first
+            socket.emit("chatRoomLog", {
+              room: chatRooms[i].textContent
             })
           });
         }
@@ -86,6 +115,20 @@
         }
       });
 
+      //Handle creating a chat room
+      chatRoomBtn.addEventListener("click", createRoom);
+      function createRoom() {
+        let userResponse = prompt("What is the name of your chat room?")
+        if (userResponse !== null) {
+          let roomName = "Chat Room: " + userResponse;
+          socket.emit("createChatRoom", { name: "", message: "", room: roomName });
+        }
+        location.reload();
+      }
+
+      //List ChatRooms
+
+
       // Handle Input - sending messages by hitting enter
       textarea.addEventListener("keydown", function(event) {
         if (event.which === 13 && event.shiftKey == false) {
@@ -93,12 +136,15 @@
           let firstname = loggedInUser.textContent.split(" ")[0];
           let lastname = loggedInUser.textContent.split(" ")[1];
           let current = document.getElementsByClassName("active");
+          let className = current[0].classList[0];
 
           socket.emit("input", {
             name: username.value.length == 0 ? firstname + " " + lastname : username.value,
             message: textarea.value,
             sender: loggedInUser.getAttribute("data-userid"),
-            receiver: current[0].getAttribute("data-userid")
+            receiver: current[0].getAttribute("data-userid"),
+            nameOfClass: className,
+            room: current[0].textContent
           });
           event.preventDefault();
         }

@@ -50,6 +50,33 @@ mongoose.connect(dbConnectionString, function(err, db) {
         socket.emit("listOfUsers", res);
       });
 
+      // Get chatrooms from the mongodb collection
+      chat.find().sort({ _id:1 }).toArray(function(err, res) {
+        if (err) {
+          throw err;
+        }
+        // Emit the messages(res) as "output" from server to client (html file)
+        socket.emit("listOfChatRooms", res);
+      });
+
+      //Get list of chatrooms from server
+      socket.on("createChatRoom", function(data) {
+        let name = data.name;
+        let msg = data.message;
+        let room = data.room;
+
+        chat.insert({ name: name, message: msg, room: room });
+        
+
+        // Get chatrooms from the mongodb collection
+        chat.find().sort({ _id:1 }).toArray(function(err, res) {
+          if (err) {
+            throw err;
+          }
+          // Emit the messages(res) as "output" from server to client (html file)
+          socket.emit("listOfChatRooms", res);
+        })
+      });
       // Get chats from the mongodb collection
       //chat.find().limit(100).sort({ _id:1 }).toArray(function(err, res) {
       //    if (err) {
@@ -60,7 +87,8 @@ mongoose.connect(dbConnectionString, function(err, db) {
       //    socket.emit("output", res);
       //});
 
-        socket.on("singleChatLog", function(data) {
+      //Get chatlog for the user you want to 1 on 1 talk to
+      socket.on("singleChatLog", function(data) {
         let sender = data.sender;
         let receiver = data.receiver;
 
@@ -68,16 +96,30 @@ mongoose.connect(dbConnectionString, function(err, db) {
           chat.insert({ name: "", message: "", relationship: [sender, receiver] });
         }
 
-
         // Get chats from the mongodb collection
         chat.find({ relationship: { $all: [sender, receiver] } }).limit(100).sort({ _id:1 }).toArray(function(err, res) {
-            if (err) {
-              throw err;
-            }
-            // Emit the messages(res) as "output" from server to client (html file)
-            socket.emit("output", res);
+          if (err) {
+            throw err;
+          }
+          // Emit the messages(res) as "output" from server to client (html file)
+          socket.emit("output", res);
         });
       })
+
+      //Get chat log for the room
+      socket.on("chatRoomLog", function(data) {
+        let room = data.room;
+
+        // Get chats from the mongodb collection
+        chat.find({ room: room }).limit(100).sort({ _id:1 }).toArray(function(err, res) {
+          if (err) {
+            throw err;
+          }
+          // Emit the messages(res) as "output" from server to client (html file)
+          socket.emit("output", res);
+        });
+      })
+
 
       // Handle input events from the client sending messages
       //socket.on = you are catching what the client is sending to you
@@ -86,22 +128,28 @@ mongoose.connect(dbConnectionString, function(err, db) {
         let message = data.message;
         let sender = data.sender;
         let receiver = data.receiver;
+        let className = data.nameOfClass;
+        let room = data.room;
 
-        // Check for name and message
+      // Check for name and message
         if (message == "") {
           // Send error status
           sendStatus("Please enter a message");
-        } else {
+        } else if (className == "users-li")  {
           chat.insert({ name: name, message: message, relationship: [sender, receiver] }, function() {
             sockIO.emit("output", [data]); //emit output back to client
-
-             //Send status object
-            sendStatus({
-              message: "Message sent",
-              clear: true
-            });
+          });
+        } else {
+          chat.insert({ name: name, message: message, room: room }, function() {
+            sockIO.emit("output", [data]); //emit output back to client
           });
         }
+
+         //Send status object
+        sendStatus({
+          message: "Message sent",
+            clear: true
+        });
       });
       //Feature to clear chat messages (from client we are gonna initiate a 'clear')
       socket.on("clear", function() {
@@ -111,7 +159,7 @@ mongoose.connect(dbConnectionString, function(err, db) {
           socket.emit("cleared"); //send cleared to client from server
         })
       })
-    })
+    });
   }
 });
 if (app.get('env') == 'development') {
