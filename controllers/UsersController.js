@@ -4,11 +4,13 @@ var usersController = {};
 
 // Sign up page
 usersController.signup = function(req, res) {
+  res.status(200);
   res.render("../views/Users/signup");
 };
 
 // Login page
 usersController.login = function(req, res) {
+  res.status(200);
   res.render("../views/Users/login");
 }
 
